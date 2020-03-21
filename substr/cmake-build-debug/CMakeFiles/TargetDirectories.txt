@@ -1,0 +1,3 @@
+/home/dk318/C++2020/substr/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/dk318/C++2020/substr/cmake-build-debug/CMakeFiles/substr.dir
+/home/dk318/C++2020/substr/cmake-build-debug/CMakeFiles/edit_cache.dir
