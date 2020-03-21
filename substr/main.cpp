@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         prefix_function[i] = calculate_prefix_function(prefix_function[i - 1],
                 argv[1][i], argv[1]);
     }
-    size_t last_prefix = prefix_function[n - 1];
+    size_t last_prefix = 0;
     while (true) {
         char buffer[BUFFER_SIZE];
         ssize_t bytes_read = read(fd, buffer, std::size(buffer));
