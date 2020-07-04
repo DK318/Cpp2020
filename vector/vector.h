@@ -60,6 +60,8 @@ private:
     T *data_;
     size_t size_;
     size_t capacity_;
+
+    size_t calculate_capacity();
 };
 
 template<typename T>
@@ -155,12 +157,21 @@ T const &vector<T>::back() const {
 
 template<typename T>
 void vector<T>::push_back(T const &val) {
-    insert(end(), val);
+    //insert(end(), val);
+    if (size_ == capacity_) {
+        T tmp(val);
+        reserve(calculate_capacity());
+        new(data_ + size_) T(tmp);
+    } else {
+        new(data_ + size_) T(val);
+    }
+    size_++;
 }
 
 template<typename T>
 void vector<T>::pop_back() {
-    erase(end() - 1);
+    //erase(end() - 1);
+    data_[--size_].~T();
 }
 
 template<typename T>
@@ -232,57 +243,33 @@ T const *vector<T>::end() const {
 
 template<typename T>
 T *vector<T>::insert(iterator pos, T const &val) {
-    size_t position;
-    T value = val;
-    if (pos != nullptr) {
-        position = pos - data_;
-    } else {
-        position = 0;
+    size_t position = pos - data_;
+    //T value = val;
+    //if (pos != nullptr) {
+    //    position = pos - data_;
+    //} else {
+    //    position = 0;
+    //}
+    //if (size_ >= capacity_) {
+    //    reserve(calculate_capacity());
+    //}
+    //if (position == size_) {
+    //    new(end()) T(value);
+    //    size_++;
+    //    return data_ + position;
+    //}
+    //size_t max_pos = size_ - 1;
+    //new(end()) T(data_[max_pos]);
+    //size_++;
+    //while (position < max_pos) {
+    //    data_[max_pos] = data_[max_pos - 1];
+    //    max_pos--;
+    //}
+    //data_[position] = value;
+    push_back(val);
+    for (size_t i = size_ - 1; i > position; i--) {
+        std::swap(data_[i], data_[i - 1]);
     }
-    if (size_ >= capacity_) {
-        reserve(capacity_ == 0 ? 1 : 2 * capacity_);
-    }
-    if (position == size_) {
-        new(end()) T(value);
-        size_++;
-        return data_ + position;
-    }
-    size_t max_pos = size_ - 1;
-    new(end()) T(data_[max_pos]);
-    size_++;
-    while (position < max_pos) {
-        data_[max_pos] = data_[max_pos - 1];
-        max_pos--;
-    }
-    data_[position] = value;
-    return data_ + position;
-}
-
-template<typename T>
-T *vector<T>::insert(const_iterator pos, T const &val) {
-    size_t position;
-    T value = val;
-    if (pos != nullptr) {
-        position = pos - data_;
-    } else {
-        position = 0;
-    }
-    if (size_ >= capacity_) {
-        reserve(capacity_ == 0 ? 1 : 2 * capacity_);
-    }
-    if (position == size_) {
-        new(end()) T(value);
-        size_++;
-        return data_ + position;
-    }
-    size_t max_pos = size_ - 1;
-    new(end()) T(data_[max_pos]);
-    size_++;
-    while (position < max_pos) {
-        data_[max_pos] = data_[max_pos - 1];
-        max_pos--;
-    }
-    data_[position] = value;
     return data_ + position;
 }
 
@@ -290,50 +277,33 @@ template<typename T>
 T *vector<T>::erase(iterator pos) {
     size_t position = pos - data_;
     for (size_t i = position; i < size_ - 1; i++) {
-        data_[i] = data_[i + 1];
+        //data_[i] = data_[i + 1];
+        std::swap(data_[i], data_[i + 1]);
     }
-    data_[size_ - 1].~T();
-    size_--;
-    return data_ + position;
-}
-
-template<typename T>
-T *vector<T>::erase(const_iterator pos) {
-    size_t position = pos - data_;
-    for (size_t i = position; i < size_ - 1; i++) {
-        data_[i] = data_[i + 1];
-    }
-    data_[size_ - 1].~T();
-    size_--;
+    //data_[size_ - 1].~T();
+    //size_--;
+    pop_back();
     return data_ + position;
 }
 
 template<typename T>
 T *vector<T>::erase(iterator first, iterator last) {
-    size_t d = last - first;
+    size_t diff = last - first;
     size_t first_pos = first - data_;
-    for (size_t i = first_pos; i < size_ - d; i++) {
-        data_[i] = data_[i + d];
+    for (size_t i = first_pos; i < size_ - diff; i++) {
+        //data_[i] = data_[i + diff];
+        std::swap(data_[i], data_[i + diff]);
     }
-    for (size_t i = size_ - d; i < size_; i++) {
+    for (size_t i = size_ - diff; i < size_; i++) {
         data_[i].~T();
     }
-    size_ -= d;
+    size_ -= diff;
     return data_ + first_pos;
 }
 
 template<typename T>
-T *vector<T>::erase(const_iterator first, const_iterator last) {
-    size_t d = last - first;
-    size_t first_pos = first - data_;
-    for (size_t i = first_pos; i < size_ - d; i++) {
-        data_[i] = data_[i + d];
-    }
-    for (size_t i = size_ - d; i < size_; i++) {
-        data_[i].~T();
-    }
-    size_ -= d;
-    return data_ + first_pos;
+size_t vector<T>::calculate_capacity() {
+    return capacity_ == 0 ? 1 : 2 * capacity_;
 }
 
 #endif // !VECTOR_H
